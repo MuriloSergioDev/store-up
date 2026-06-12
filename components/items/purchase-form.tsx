@@ -170,7 +170,7 @@ export function PurchaseForm({ categories, suppliers }: PurchaseFormProps) {
             <div className="space-y-2">
               <Label>Fornecedor <span className="text-muted-foreground font-normal">(opcional)</span></Label>
               <Select
-                onValueChange={(v) => setValue('supplier_id', v ?? '')}
+                onValueChange={(v) => setValue('supplier_id', (v as string) ?? '')}
                 items={suppliers.map(s => ({ value: s.id, label: s.name }))}
               >
                 <SelectTrigger className="w-full">
@@ -264,7 +264,7 @@ export function PurchaseForm({ categories, suppliers }: PurchaseFormProps) {
                 <div className="space-y-2">
                   <Label>Categoria</Label>
                   <Select
-                    onValueChange={(v) => setValue(`items.${index}.category_id`, v ?? '')}
+                    onValueChange={(v) => setValue(`items.${index}.category_id`, (v as string) ?? '')}
                     items={categories.map(cat => ({ value: cat.id, label: cat.name }))}
                   >
                     <SelectTrigger className="w-full">

@@ -54,6 +54,7 @@ export interface Item {
   description: string | null
   supplier_id: string | null
   purchase_date: string
+  purchase_location: string | null
   item_cost: number
   shipping_cost: number
   other_costs: number
