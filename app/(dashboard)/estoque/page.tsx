@@ -99,7 +99,73 @@ export default async function EstoquePage({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+        <>
+        <div className="sm:hidden space-y-2">
+          {items.map((item) => {
+            const primaryImage = item.images?.find(img => img.is_primary) ?? item.images?.[0]
+            const isStale = item.status === 'in_stock' && (item.days_in_stock ?? 0) > 90
+            return (
+              <Link key={item.id} href={`/estoque/${item.id}`}>
+                <Card className={`overflow-hidden active:scale-[0.99] transition-all ${isStale ? 'border-amber-500/30' : ''}`}>
+                  <CardContent className="p-0">
+                    <div className="flex gap-3 p-3">
+                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted shrink-0 relative">
+                        {primaryImage ? (
+                          <Image src={primaryImage.url} alt={item.name} fill className="object-cover" />
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <Package className="w-7 h-7 text-muted-foreground/30" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-1">
+                          <div className="min-w-0">
+                            <h3 className="font-semibold text-sm truncate">{item.name}</h3>
+                            {item.category && (
+                              <p className="text-xs text-muted-foreground truncate">{item.category.name}</p>
+                            )}
+                          </div>
+                          <Badge className={`text-xs shrink-0 ${getStatusColor(item.status)}`} variant="secondary">
+                            {getStatusLabel(item.status)}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">Custo</p>
+                            <p className="text-xs font-medium">{formatCurrency(item.total_cost)}</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-[10px] text-muted-foreground">Qtd.</p>
+                            <p className="text-xs font-medium">{item.quantity}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[10px] text-muted-foreground">Est. Venda</p>
+                            <p className="text-xs font-semibold text-primary">{formatCurrency(item.estimated_price)}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[10px] text-muted-foreground">Lucro</p>
+                            <p className={`text-xs font-medium ${item.estimated_profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {formatCurrency(item.estimated_profit)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {isStale && (
+                      <div className="px-3 pb-2">
+                        <p className="text-[10px] text-amber-600 font-medium">⚠ {item.days_in_stock}d parado no estoque</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* Desktop: grid */}
+        <div className="hidden sm:grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           {items.map((item) => {
             const primaryImage = item.images?.find(img => img.is_primary) ?? item.images?.[0]
             const isStale = item.status === 'in_stock' && (item.days_in_stock ?? 0) > 90
@@ -162,6 +228,7 @@ export default async function EstoquePage({
             )
           })}
         </div>
+        </>
       )}
     </div>
   )

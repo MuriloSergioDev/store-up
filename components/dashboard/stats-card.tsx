@@ -39,17 +39,17 @@ export function StatsCard({
 }: StatsCardProps) {
   return (
     <Card className={cn('border transition-all hover:shadow-md', variantStyles[variant], className)}>
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between gap-3">
+      <CardContent className="p-3 sm:p-5">
+        <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-muted-foreground truncate">{title}</p>
-            <p className="text-2xl font-bold mt-1 truncate">{value}</p>
+            <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-tight line-clamp-1">{title}</p>
+            <p className="text-lg sm:text-2xl font-bold mt-0.5 sm:mt-1 truncate">{value}</p>
             {subtitle && (
-              <p className="text-xs text-muted-foreground mt-1 truncate">{subtitle}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 line-clamp-1">{subtitle}</p>
             )}
             {trend && (
               <div className={cn(
-                'flex items-center gap-1 mt-1.5 text-xs font-medium',
+                'flex items-center gap-1 mt-1 text-xs font-medium',
                 trend.value >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
               )}>
                 <span>{trend.value >= 0 ? '▲' : '▼'}</span>
@@ -57,8 +57,8 @@ export function StatsCard({
               </div>
             )}
           </div>
-          <div className={cn('flex items-center justify-center w-11 h-11 rounded-xl shrink-0', iconStyles[variant])}>
-            <Icon className="w-5 h-5" />
+          <div className={cn('flex items-center justify-center w-8 h-8 sm:w-11 sm:h-11 rounded-xl shrink-0', iconStyles[variant])}>
+            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
       </CardContent>

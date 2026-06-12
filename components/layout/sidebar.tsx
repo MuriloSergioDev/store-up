@@ -41,6 +41,13 @@ const navItems = [
   { href: '/fornecedores', label: 'Fornecedores', icon: Truck },
 ]
 
+const bottomNavItems = [
+  { href: '/', label: 'Início', icon: LayoutDashboard },
+  { href: '/estoque', label: 'Estoque', icon: Package },
+  { href: '/vendas', label: 'Vendas', icon: TrendingUp },
+  { href: '/compras', label: 'Compras', icon: ShoppingCart },
+]
+
 const adminItems = [
   { href: '/configuracoes', label: 'Configurações', icon: Settings },
 ]
@@ -184,22 +191,43 @@ export function Sidebar({ profile }: SidebarProps) {
         <NavContent />
       </aside>
 
-      {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center gap-3 px-4 h-14 bg-background/95 backdrop-blur border-b border-border">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setMobileOpen(true)}
-          className="shrink-0"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-        <div className="flex items-center gap-2 flex-1">
+      {/* Mobile Top Bar */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 bg-background/95 backdrop-blur border-b border-border">
+        <div className="flex items-center gap-2">
           <Store className="w-5 h-5 text-primary" />
           <span className="font-bold text-sm">Store Up</span>
         </div>
         <ThemeToggle />
       </header>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-border safe-area-bottom">
+        <div className="flex items-center justify-around h-16 px-1">
+          {bottomNavItems.map((item) => {
+            const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'flex flex-col items-center gap-0.5 flex-1 py-2 rounded-lg transition-colors',
+                  isActive ? 'text-primary' : 'text-muted-foreground'
+                )}
+              >
+                <item.icon className={cn('w-5 h-5', isActive && 'fill-primary/20')} />
+                <span className="text-[10px] font-medium">{item.label}</span>
+              </Link>
+            )
+          })}
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="flex flex-col items-center gap-0.5 flex-1 py-2 rounded-lg transition-colors text-muted-foreground"
+          >
+            <Menu className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Mais</span>
+          </button>
+        </div>
+      </nav>
 
       {/* Mobile Overlay */}
       {mobileOpen && (

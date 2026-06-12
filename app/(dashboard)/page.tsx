@@ -163,7 +163,7 @@ export default async function DashboardPage() {
             <CardTitle className="text-base">Evolução Financeira</CardTitle>
             <CardDescription className="text-xs">Receita, lucro e investimento por mês</CardDescription>
           </CardHeader>
-          <CardContent><MonthlyEvolutionChart data={monthlyPerf} /></CardContent>
+          <CardContent className="overflow-x-auto"><MonthlyEvolutionChart data={monthlyPerf} /></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
@@ -181,14 +181,14 @@ export default async function DashboardPage() {
             <CardTitle className="text-base">Estoque vs Vendidos</CardTitle>
             <CardDescription className="text-xs">Por categoria</CardDescription>
           </CardHeader>
-          <CardContent><StockVsSoldChart data={categoriesPerf} /></CardContent>
+          <CardContent className="overflow-x-auto"><StockVsSoldChart data={categoriesPerf} /></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Lucro Previsto vs Realizado</CardTitle>
             <CardDescription className="text-xs">Comparativo mensal</CardDescription>
           </CardHeader>
-          <CardContent><ProfitCompareChart data={profitCompareData} /></CardContent>
+          <CardContent className="overflow-x-auto"><ProfitCompareChart data={profitCompareData} /></CardContent>
         </Card>
       </div>
 
@@ -199,7 +199,7 @@ export default async function DashboardPage() {
             <CardTitle className="text-base">Evolução do Caixa</CardTitle>
             <CardDescription className="text-xs">Entradas, saídas e saldo acumulado</CardDescription>
           </CardHeader>
-          <CardContent><CashFlowChart data={cashFlowData} /></CardContent>
+          <CardContent className="overflow-x-auto"><CashFlowChart data={cashFlowData} /></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">

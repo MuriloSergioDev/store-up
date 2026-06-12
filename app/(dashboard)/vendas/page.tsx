@@ -102,9 +102,9 @@ export default async function VendasPage() {
             const isBelow = sale.sale_price < sale.estimated_price
             return (
               <Card key={sale.id} className="hover:shadow-sm transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex gap-4 items-start">
-                    <div className="w-14 h-14 rounded-lg overflow-hidden bg-muted shrink-0 relative">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex gap-3 items-start">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden bg-muted shrink-0 relative">
                       {item?.images?.[0] ? (
                         <img src={item.images[0].url} alt={item.name} className="w-full h-full object-cover" />
                       ) : (
@@ -113,38 +113,38 @@ export default async function VendasPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <div>
+                        <div className="min-w-0">
                           <p className="font-semibold text-sm truncate">{item?.name}</p>
-                          {item?.category && (
-                            <p className="text-xs text-muted-foreground">{item.category.name}</p>
-                          )}
+                          <p className="text-xs text-muted-foreground">{formatDate(sale.sale_date)}</p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="font-bold text-green-600">{formatCurrency(sale.sale_price)}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatDate(sale.sale_date)}
+                          <p className="font-bold text-green-600 text-sm">{formatCurrency(sale.sale_price)}</p>
+                          <p className={`text-xs font-medium ${sale.profit >= 0 ? 'text-green-600/70' : 'text-red-500'}`}>
+                            +{formatCurrency(sale.profit)}
                           </p>
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        <Badge variant="outline" className="text-xs">
-                          Lucro: {formatCurrency(sale.profit)}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
+                      <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                        <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-medium">
                           {formatPercent(sale.profit_margin)} margem
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
+                        </span>
+                        <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-medium">
                           {getPaymentMethodLabel(sale.payment_method)}
-                        </Badge>
+                        </span>
+                        {sale.quantity_sold > 1 && (
+                          <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-medium">
+                            ×{sale.quantity_sold}
+                          </span>
+                        )}
                         {isAbove && (
-                          <Badge className="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                          <span className="text-[10px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded font-medium">
                             +{formatCurrency(sale.sale_price - sale.estimated_price)} acima
-                          </Badge>
+                          </span>
                         )}
                         {isBelow && (
-                          <Badge className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                          <span className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded font-medium">
                             -{formatCurrency(sale.estimated_price - sale.sale_price)} abaixo
-                          </Badge>
+                          </span>
                         )}
                       </div>
                     </div>

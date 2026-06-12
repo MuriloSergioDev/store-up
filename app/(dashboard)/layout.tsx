@@ -35,7 +35,7 @@ export default async function DashboardLayout({
       <Sidebar profile={profile} />
       <div className="flex-1 flex flex-col min-w-0">
         <Header staleItemsCount={staleCount ?? 0} />
-        <main className="flex-1 p-4 lg:p-6 pt-16 lg:pt-4">
+        <main className="flex-1 p-4 lg:p-6 pt-16 lg:pt-4 pb-20 lg:pb-6">
           {children}
         </main>
       </div>
