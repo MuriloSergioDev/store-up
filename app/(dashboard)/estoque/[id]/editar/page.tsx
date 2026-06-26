@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
-import { ItemForm } from '@/components/items/item-form'
+import { PurchaseForm } from '@/components/items/purchase-form'
 import type { Item, ItemImage } from '@/types/database'
 
 export const metadata = { title: 'Editar Item' }
@@ -34,7 +34,7 @@ export default async function EditarItemPage({ params }: { params: Promise<{ id:
           <p className="text-muted-foreground text-sm truncate max-w-sm">{item.name}</p>
         </div>
       </div>
-      <ItemForm categories={categories ?? []} suppliers={suppliers ?? []} item={item} defaultImages={imageUrls} />
+      <PurchaseForm categories={categories ?? []} suppliers={suppliers ?? []} item={item} defaultImages={imageUrls} />
     </div>
   )
 }

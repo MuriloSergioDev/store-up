@@ -5,11 +5,33 @@ import { useCallback, useTransition } from 'react'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
-import { Search, X } from 'lucide-react'
+import { Search, X, Globe } from 'lucide-react'
 import type { Category } from '@/types/database'
 
 interface InventoryFiltersProps {
   categories: Category[]
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  all: 'Todos os status',
+  in_stock: 'Em Estoque',
+  reserved: 'Reservado',
+  sold: 'Vendido',
+}
+
+const PRICE_LABELS: Record<string, string> = {
+  all: 'Todos os preços',
+  '0-100': 'Até R$ 100',
+  '100-500': 'R$ 100 – R$ 500',
+  '500-1000': 'R$ 500 – R$ 1.000',
+  '1000-5000': 'R$ 1.000 – R$ 5.000',
+  '5000+': 'Acima de R$ 5.000',
+}
+
+const PUBLISHED_LABELS: Record<string, string> = {
+  all: 'Todos',
+  true: 'Publicados',
+  false: 'Não publicados',
 }
 
 export function InventoryFilters({ categories }: InventoryFiltersProps) {
@@ -52,15 +74,11 @@ export function InventoryFilters({ categories }: InventoryFiltersProps) {
       <Select
         defaultValue={searchParams.get('status') ?? 'all'}
         onValueChange={(v) => updateFilter('status', v ?? 'all')}
-        items={[
-          { value: 'all', label: 'Todos os status' },
-          { value: 'in_stock', label: 'Em Estoque' },
-          { value: 'reserved', label: 'Reservado' },
-          { value: 'sold', label: 'Vendido' },
-        ]}
       >
         <SelectTrigger className="w-36 h-9">
-          <SelectValue placeholder="Status" />
+          <SelectValue placeholder="Status">
+            {(value: string) => STATUS_LABELS[value] ?? value}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos os status</SelectItem>
@@ -73,13 +91,14 @@ export function InventoryFilters({ categories }: InventoryFiltersProps) {
       <Select
         defaultValue={searchParams.get('category') ?? 'all'}
         onValueChange={(v) => updateFilter('category', v ?? 'all')}
-        items={[
-          { value: 'all', label: 'Todas as categorias' },
-          ...categories.map(cat => ({ value: cat.id, label: cat.name })),
-        ]}
       >
         <SelectTrigger className="w-40 h-9">
-          <SelectValue placeholder="Categoria" />
+          <SelectValue placeholder="Categoria">
+            {(value: string) => {
+              if (!value || value === 'all') return 'Todas as categorias'
+              return categories.find(c => c.id === value)?.name ?? value
+            }}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todas as categorias</SelectItem>
@@ -92,17 +111,11 @@ export function InventoryFilters({ categories }: InventoryFiltersProps) {
       <Select
         defaultValue={searchParams.get('price') ?? 'all'}
         onValueChange={(v) => updateFilter('price', v ?? 'all')}
-        items={[
-          { value: 'all', label: 'Todos os preços' },
-          { value: '0-100', label: 'Até R$ 100' },
-          { value: '100-500', label: 'R$ 100 – R$ 500' },
-          { value: '500-1000', label: 'R$ 500 – R$ 1.000' },
-          { value: '1000-5000', label: 'R$ 1.000 – R$ 5.000' },
-          { value: '5000+', label: 'Acima de R$ 5.000' },
-        ]}
       >
         <SelectTrigger className="w-36 h-9">
-          <SelectValue placeholder="Preço" />
+          <SelectValue placeholder="Preço">
+            {(value: string) => PRICE_LABELS[value] ?? value}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos os preços</SelectItem>
@@ -111,6 +124,23 @@ export function InventoryFilters({ categories }: InventoryFiltersProps) {
           <SelectItem value="500-1000">R$ 500 – R$ 1.000</SelectItem>
           <SelectItem value="1000-5000">R$ 1.000 – R$ 5.000</SelectItem>
           <SelectItem value="5000+">Acima de R$ 5.000</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select
+        defaultValue={searchParams.get('published') ?? 'all'}
+        onValueChange={(v) => updateFilter('published', v ?? 'all')}
+      >
+        <SelectTrigger className="w-36 h-9">
+          <Globe className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+          <SelectValue placeholder="Publicação">
+            {(value: string) => PUBLISHED_LABELS[value] ?? value}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todos</SelectItem>
+          <SelectItem value="true">Publicados</SelectItem>
+          <SelectItem value="false">Não publicados</SelectItem>
         </SelectContent>
       </Select>
 

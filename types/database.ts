@@ -66,6 +66,7 @@ export interface Item {
   status: ItemStatus
   qr_code: string | null
   notes: string | null
+  published: boolean
   days_in_stock: number
   abc_class: ABCClass
   created_by: string | null

@@ -12,6 +12,7 @@ import {
 import { formatCurrency, formatDate, formatPercent, getStatusColor, getStatusLabel, formatRelativeDate } from '@/lib/utils'
 import Image from 'next/image'
 import { ItemActions } from '@/components/items/item-actions'
+import { PublishToggle } from '@/components/items/publish-toggle'
 import type { Item, Sale, ItemImage, Category, Profile } from '@/types/database'
 
 type ItemWithRelations = Item & {
@@ -232,6 +233,9 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
               </CardContent>
             </Card>
           )}
+
+          {/* Publicação */}
+          <PublishToggle itemId={id} published={item.published ?? false} />
 
           {/* Actions */}
           <ItemActions

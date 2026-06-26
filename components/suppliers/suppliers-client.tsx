@@ -236,11 +236,11 @@ export function SuppliersClient({ suppliers, statsMap }: SuppliersClientProps) {
 
       {/* Sheet Criar/Editar */}
       <Sheet open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null) }}>
-        <SheetContent>
-          <SheetHeader>
+        <SheetContent className="px-6">
+          <SheetHeader className="pb-2">
             <SheetTitle>{editing ? 'Editar Fornecedor' : 'Novo Fornecedor'}</SheetTitle>
           </SheetHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-8">
             <div className="space-y-2">
               <Label>Nome *</Label>
               <Input placeholder="Ex: Leilão Silva" {...register('name')} />
@@ -261,9 +261,9 @@ export function SuppliersClient({ suppliers, statsMap }: SuppliersClientProps) {
             </div>
             <div className="space-y-2">
               <Label>Observações</Label>
-              <Textarea placeholder="Informações adicionais..." {...register('notes')} rows={3} />
+              <Textarea placeholder="Informações adicionais..." {...register('notes')} rows={4} />
             </div>
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-4">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
                 Cancelar
               </Button>

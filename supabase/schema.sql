@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   name TEXT NOT NULL,
   email TEXT NOT NULL,
   avatar_url TEXT,
-  role TEXT NOT NULL DEFAULT 'operator' CHECK (role IN ('admin', 'operator')),
+  role TEXT NOT NULL DEFAULT 'admin' CHECK (role IN ('admin', 'operator')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -234,7 +234,7 @@ BEGIN
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
     NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'role', 'operator')
+    COALESCE(NEW.raw_user_meta_data->>'role', 'admin')
   );
   RETURN NEW;
 END;

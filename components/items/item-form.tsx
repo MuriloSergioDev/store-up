@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
+import { Slider } from '@/components/ui/slider'
 import { Loader2, Upload, X, ImageIcon, Calculator, TrendingUp } from 'lucide-react'
 import type { Category, Item, Supplier } from '@/types/database'
 import Image from 'next/image'
@@ -51,6 +52,15 @@ export function ItemForm({ categories, suppliers, item, defaultImages = [] }: It
   const [previews, setPreviews] = useState<string[]>(defaultImages)
   const [uploadProgress, setUploadProgress] = useState(0)
   const isEditing = !!item
+
+  const initialMargin = (() => {
+    const cost = (item?.item_cost ?? 0) * (item?.quantity ?? 1) + (item?.shipping_cost ?? 0) + (item?.other_costs ?? 0)
+    return cost > 0
+      ? Math.max(0, Math.min(500, Math.round(((item?.estimated_price ?? 0) * (item?.quantity ?? 1) - cost) / cost * 100)))
+      : 100
+  })()
+  const [margin, setMargin] = useState(initialMargin)
+  const [marginInput, setMarginInput] = useState((initialMargin / 100).toFixed(2))
 
   const parseMoney = (value: unknown) => {
     if (typeof value === 'number') return value
@@ -99,6 +109,37 @@ export function ItemForm({ categories, suppliers, item, defaultImages = [] }: It
   const costPerUnit = qty > 1 ? totalCost / qty : 0
   const estimatedProfit = estimatedPrice * qty - totalCost
   const estimatedMargin = totalCost > 0 ? estimatedProfit / totalCost : 0
+
+  const recalcPrice = (overrides: { itemCost?: number; shippingCost?: number; otherCosts?: number; qty?: number }) => {
+    const ic = overrides.itemCost ?? itemCost
+    const sc = overrides.shippingCost ?? shippingCost
+    const oc = overrides.otherCosts ?? otherCosts
+    const q = overrides.qty ?? qty
+    const cost = ic * q + sc + oc
+    if (cost > 0) {
+      const price = Math.round((cost * (1 + margin / 100)) / q * 100) / 100
+      setValue('estimated_price', price)
+    }
+  }
+
+  const handleMarginChange = (pct: number) => {
+    setMargin(pct)
+    setMarginInput((pct / 100).toFixed(2))
+    const cost = itemCost * qty + shippingCost + otherCosts
+    if (cost > 0) {
+      const price = Math.round((cost * (1 + pct / 100)) / qty * 100) / 100
+      setValue('estimated_price', price)
+    }
+  }
+
+  const handlePriceChange = (price: number) => {
+    const cost = itemCost * qty + shippingCost + otherCosts
+    if (cost > 0) {
+      const pct = Math.max(0, Math.min(500, Math.round(((price * qty - cost) / cost) * 100)))
+      setMargin(pct)
+      setMarginInput((pct / 100).toFixed(2))
+    }
+  }
 
   const handleImageChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
@@ -233,10 +274,11 @@ export function ItemForm({ categories, suppliers, item, defaultImages = [] }: It
               <Select
                 defaultValue={item?.category_id ?? undefined}
                 onValueChange={(v) => setValue('category_id', v ?? '')}
-                items={categories.map(cat => ({ value: cat.id, label: cat.name }))}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione a categoria" />
+                  <SelectValue placeholder="Selecione a categoria">
+                    {(value: string) => categories.find(c => c.id === value)?.name ?? 'Selecione a categoria'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {categories.length === 0 ? (
@@ -271,10 +313,11 @@ export function ItemForm({ categories, suppliers, item, defaultImages = [] }: It
               <Select
                 defaultValue={item?.supplier_id ?? undefined}
                 onValueChange={(v) => setValue('supplier_id', v ?? '')}
-                items={suppliers.map(s => ({ value: s.id, label: s.name }))}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione o fornecedor" />
+                  <SelectValue placeholder="Selecione o fornecedor">
+                    {(value: string) => suppliers.find(s => s.id === value)?.name ?? 'Selecione o fornecedor'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {suppliers.length === 0 ? (
@@ -310,9 +353,11 @@ export function ItemForm({ categories, suppliers, item, defaultImages = [] }: It
               id="quantity"
               type="number"
               min={1}
-              {...register('quantity', { 
-                setValueAs: (v) => v === '' ? 1 : parseInt(v) || 1 
-              })}
+              {...(() => {
+                const { onChange, ...rest } = register('quantity', { setValueAs: (v) => v === '' ? 1 : parseInt(v) || 1 })
+                return { ...rest, onChange: (e: React.ChangeEvent<HTMLInputElement>) => { onChange(e); recalcPrice({ qty: parseInt(e.target.value) || 1 }) } }
+              })()}
+              onWheel={(e) => e.currentTarget.blur()}
               className="w-32"
             />
           </div>
@@ -328,7 +373,7 @@ export function ItemForm({ categories, suppliers, item, defaultImages = [] }: It
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="item_cost">Valor do Item *</Label>
               <div className="relative">
@@ -339,9 +384,11 @@ export function ItemForm({ categories, suppliers, item, defaultImages = [] }: It
                   step="0.01"
                   min="0"
                   placeholder="0,00"
-                  {...register('item_cost', { 
-                    setValueAs: (v) => v === '' ? 0 : parseFloat(v) || 0 
-                  })}
+                  {...(() => {
+                    const { onChange, ...rest } = register('item_cost', { setValueAs: (v) => v === '' ? 0 : parseFloat(v) || 0 })
+                    return { ...rest, onChange: (e: React.ChangeEvent<HTMLInputElement>) => { onChange(e); recalcPrice({ itemCost: parseFloat(e.target.value) || 0 }) } }
+                  })()}
+                  onWheel={(e) => e.currentTarget.blur()}
                   className={`pl-8 ${errors.item_cost ? 'border-destructive' : ''}`}
                 />
               </div>
@@ -358,9 +405,11 @@ export function ItemForm({ categories, suppliers, item, defaultImages = [] }: It
                   step="0.01"
                   min="0"
                   placeholder="0,00"
-                  {...register('shipping_cost', { 
-                    setValueAs: (v) => v === '' ? 0 : parseFloat(v) || 0 
-                  })}
+                  {...(() => {
+                    const { onChange, ...rest } = register('shipping_cost', { setValueAs: (v) => v === '' ? 0 : parseFloat(v) || 0 })
+                    return { ...rest, onChange: (e: React.ChangeEvent<HTMLInputElement>) => { onChange(e); recalcPrice({ shippingCost: parseFloat(e.target.value) || 0 }) } }
+                  })()}
+                  onWheel={(e) => e.currentTarget.blur()}
                   className="pl-8"
                 />
               </div>
@@ -376,32 +425,69 @@ export function ItemForm({ categories, suppliers, item, defaultImages = [] }: It
                   step="0.01"
                   min="0"
                   placeholder="0,00"
-                  {...register('other_costs', { 
-                    setValueAs: (v) => v === '' ? 0 : parseFloat(v) || 0 
-                  })}
+                  {...(() => {
+                    const { onChange, ...rest } = register('other_costs', { setValueAs: (v) => v === '' ? 0 : parseFloat(v) || 0 })
+                    return { ...rest, onChange: (e: React.ChangeEvent<HTMLInputElement>) => { onChange(e); recalcPrice({ otherCosts: parseFloat(e.target.value) || 0 }) } }
+                  })()}
+                  onWheel={(e) => e.currentTarget.blur()}
                   className="pl-8"
                 />
               </div>
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="estimated_price">Preço Estimado de Venda *</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">R$</span>
-                <Input
-                  id="estimated_price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0,00"
-                  {...register('estimated_price', { 
-                    setValueAs: (v) => v === '' ? 0 : parseFloat(v) || 0 
-                  })}
-                  className={`pl-8 ${errors.estimated_price ? 'border-destructive' : ''}`}
-                />
-              </div>
-              {errors.estimated_price && <p className="text-xs text-destructive">{errors.estimated_price.message}</p>}
+          <div className="space-y-3">
+            <Label htmlFor="estimated_price">Preço Estimado de Venda *</Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">R$</span>
+              <Input
+                id="estimated_price"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0,00"
+                {...(() => {
+                  const { onChange, ...rest } = register('estimated_price', { setValueAs: (v) => v === '' ? 0 : parseFloat(v) || 0 })
+                  return { ...rest, onChange: (e: React.ChangeEvent<HTMLInputElement>) => { onChange(e); handlePriceChange(parseFloat(e.target.value) || 0) } }
+                })()}
+                onWheel={(e) => e.currentTarget.blur()}
+                className={`pl-8 ${errors.estimated_price ? 'border-destructive' : ''}`}
+              />
             </div>
+            <div className="flex items-center gap-3">
+              <Slider
+                value={[margin]}
+                min={0}
+                max={500}
+                step={1}
+                className="flex-1"
+                onValueChange={(vals: number | readonly number[]) => handleMarginChange(Array.isArray(vals) ? (vals as number[])[0] : (vals as number))}
+              />
+              <div className="relative w-24 shrink-0">
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="1.00"
+                  value={marginInput}
+                  onChange={(e) => {
+                    const raw = e.target.value
+                    setMarginInput(raw)
+                    const multiplier = parseFloat(raw.replace(',', '.'))
+                    if (!isNaN(multiplier) && multiplier >= 0) {
+                      handleMarginChange(Math.round(multiplier * 100))
+                    }
+                  }}
+                  className="pr-8 text-right"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">×</span>
+              </div>
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>0%</span>
+              <span className="font-semibold tabular-nums">{margin}% de margem</span>
+              <span>500%</span>
+            </div>
+            {errors.estimated_price && <p className="text-xs text-destructive">{errors.estimated_price.message}</p>}
           </div>
 
           {/* Cálculo automático */}

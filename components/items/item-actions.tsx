@@ -71,14 +71,12 @@ export function ItemActions({ itemId, itemStatus, isAdmin }: ItemActionsProps) {
             value={itemStatus}
             onValueChange={handleStatusChange as any}
             disabled={updating}
-            items={[
-              { value: 'in_stock', label: 'Em Estoque' },
-              { value: 'reserved', label: 'Reservado' },
-            ]}
           >
             <SelectTrigger className="w-40 h-9">
               <RefreshCw className="w-3.5 h-3.5 mr-2" />
-              <SelectValue />
+              <SelectValue>
+                {(value: string) => value === 'in_stock' ? 'Em Estoque' : 'Reservado'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="in_stock">Em Estoque</SelectItem>

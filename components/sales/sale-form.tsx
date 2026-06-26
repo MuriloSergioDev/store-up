@@ -155,10 +155,11 @@ export function SaleForm({ items, preSelectedItem }: SaleFormProps) {
             <Select
               defaultValue={preSelectedItem?.id ?? ''}
               onValueChange={handleItemChange}
-              items={items.map(i => ({ value: i.id, label: i.name }))}
             >
               <SelectTrigger className={`w-full${errors.item_id ? ' border-destructive' : ''}`}>
-                <SelectValue placeholder="Selecione o item..." />
+                <SelectValue placeholder="Selecione o item...">
+                  {(value: string) => items.find(i => i.id === value)?.name ?? 'Selecione o item...'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {items.map(item => (
@@ -342,10 +343,11 @@ export function SaleForm({ items, preSelectedItem }: SaleFormProps) {
               <Select
                 defaultValue="pix"
                 onValueChange={(v) => setValue('payment_method', v as any)}
-                items={paymentMethods.map(m => ({ value: m, label: getPaymentMethodLabel(m) }))}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <SelectValue>
+                    {(value: string) => getPaymentMethodLabel(value)}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {paymentMethods.map(method => (

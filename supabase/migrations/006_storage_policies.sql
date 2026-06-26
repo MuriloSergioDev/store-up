@@ -16,3 +16,20 @@ CREATE POLICY "Authenticated users can delete item images"
 CREATE POLICY "Public can view item images"
   ON storage.objects FOR SELECT TO public
   USING (bucket_id = 'item-images');
+
+-- Storage bucket policies for avatars.
+CREATE POLICY "Authenticated users can upload avatars"
+  ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'avatars');
+
+CREATE POLICY "Authenticated users can update avatars"
+  ON storage.objects FOR UPDATE TO authenticated
+  USING (bucket_id = 'avatars');
+
+CREATE POLICY "Authenticated users can delete avatars"
+  ON storage.objects FOR DELETE TO authenticated
+  USING (bucket_id = 'avatars');
+
+CREATE POLICY "Public can view avatars"
+  ON storage.objects FOR SELECT TO public
+  USING (bucket_id = 'avatars');
